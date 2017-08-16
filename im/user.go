@@ -129,6 +129,32 @@ func LoadUserAccessToken(token string) (int64, int64, int, bool, error) {
 	return appid, uid, forbidden, notification_on != 0, nil	
 }
 
+func RegisterUserToken(token string) (int64, int64, int, bool, error) {
+	conn := redis_pool.Get()
+	defer conn.Close()
+
+	var uid int64 = 1
+	var appid int64 = 1
+	var notification_on int8 = 1
+	var forbidden int = 0
+	tkuid, err := strconv.ParseInt(token, 10, 64)
+	if err != nil {
+		log.Info("user taken err:", err)
+		return 0, 0, 0, false, err
+	}
+	uid = tkuid
+	
+	key := fmt.Sprintf("access_token_%s", token)
+	_, err := conn.Do("HMSET", key, "user_id", uid, "app_id", appid, 
+		"notification_on", notification_on, "forbidden", forbidden)
+	if err != nil {
+		log.Info("hmset err:", err)
+		return 0, 0, 0, false, err
+	}
+	
+	return appid, uid, forbidden, notification_on != 0, nil	
+}
+
 func CountUser(appid int64, uid int64) {
 	conn := redis_pool.Get()
 	defer conn.Close()
