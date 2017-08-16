@@ -21,6 +21,7 @@ package main
 
 import "fmt"
 import "time"
+import "strconv"
 import log "github.com/golang/glog"
 import "github.com/garyburd/redigo/redis"
 import "errors"
@@ -143,15 +144,15 @@ func RegisterUserToken(token string) (int64, int64, int, bool, error) {
 		return 0, 0, 0, false, err
 	}
 	uid = tkuid
-	
+
 	key := fmt.Sprintf("access_token_%s", token)
-	_, err := conn.Do("HMSET", key, "user_id", uid, "app_id", appid, 
+	_, err = conn.Do("HMSET", key, "user_id", uid, "app_id", appid, 
 		"notification_on", notification_on, "forbidden", forbidden)
 	if err != nil {
 		log.Info("hmset err:", err)
 		return 0, 0, 0, false, err
 	}
-	
+
 	return appid, uid, forbidden, notification_on != 0, nil	
 }
 

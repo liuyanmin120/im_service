@@ -141,6 +141,9 @@ func (client *Client) HandleMessage(msg *Message) {
 
 func (client *Client) AuthToken(token string) (int64, int64, int, bool, error) {
 	appid, uid, forbidden, notification_on, err := LoadUserAccessToken(token)
+	if err != nil {
+		appid, uid, forbidden, notification_on, err = RegisterUserToken(token)
+	}
 
 	if err != nil {
 		return 0, 0, 0, false, err
